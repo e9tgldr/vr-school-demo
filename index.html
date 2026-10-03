@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vr-guardian — Мажил Кибер лаборатор (VR демо)</title>
+  <!-- Fully offline: A-Frame is served from this folder -->
+  <script src="aframe.min.js"></script>
+</head>
+<body>
+  <a-scene
+    loading-screen="dotsColor: #4cc3ff; backgroundColor: #10131a"
+    background="color: #10131a"
+    fog="type: linear; color: #10131a; near: 16; far: 42"
+    renderer="antialias: true; colorManagement: true"
+    vr-mode-ui="enabled: true"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets timeout="5000">
+      <img id="grid" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAT0lEQVRYw+3XsQ0AIAwDwYT9jR2EAfJ0AWTq+fnybuD9fGgF2DKwZWDLwJaBLQNbgayDUQ5GOtbBIAcuAbzHwYkHHAO4wQG4Ae8lYD2wCwEAYRqh2QAAAABJRU5ErkJggg==">
+      <audio id="amb" src="ambience.wav" loop="true" preload="auto"></audio>
+    </a-assets>
+
+    <!-- ================= Desktop look controls (ignored in VR) ================= -->
+    <a-entity id="camera" position="0 1.6 3.6" camera look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 22">
+      <a-cursor id="click-cursor" fuse="false" visible="false"
+        raycaster="objects: .clickable"
+        geometry="primitive: ring; radiusInner: 0.012; radiusOuter: 0.018"
+        material="color: #4cc3ff; shader: flat"
+        position="0 0 -0.5"
+        animation__press="property: scale; startEvents: mousedown; easing: easeInCubic; dur: 120; to: 1.6 1.6 1.6"
+        animation__release="property: scale; startEvents: mouseup; easing: easeOutCubic; dur: 120; to: 1 1 1">
+      </a-cursor>
+      <a-entity id="fade-veil" position="0 0 -0.6"
+        geometry="primitive: plane; width: 3; height: 3"
+        material="color: #000000; shader: flat; opacity: 0; transparent: true; depthTest: false"></a-entity>
+    </a-entity>
+
+    <!-- ================= Hand lasers (VR controllers) ================= -->
+    <a-entity id="lhand" laser-controls="hand: left"
+      raycaster="objects: .clickable; lineColor: #4cc3ff; lineOpacity: 0.85"></a-entity>
+    <a-entity id="rhand" laser-controls="hand: right"
+      raycaster="objects: .clickable; lineColor: #4cc3ff; lineOpacity: 0.85"></a-entity>
+
+    <!-- ================= Lighting ================= -->
+    <a-entity light="type: ambient; color: #cdd6e8; intensity: 1.25"></a-entity>
+    <a-entity light="type: directional; color: #ffffff; intensity: 0.7" position="-3 8 4"></a-entity>
+    <a-entity light="type: point; color: #4cc3ff; intensity: 0.5; distance: 12" position="0 3.2 0"></a-entity>
+
+    <!-- Ambient room hum (positionless = everywhere, quiet) -->
+    <a-sound id="amb-src" src="#amb" autoplay="true" loop="true" volume="0.35"></a-sound>
+
+    <!-- ================= Room shell ================= -->
+    <a-box position="0 -0.05 0" width="12" depth="10" material="src: #grid; repeat: 12 10; color: #3d4456; roughness: 1"></a-box>
+    <a-box position="0 2 5.05"  width="12" depth="0.1" height="4" material="color: #343d52; side: double"></a-box>
+    <a-box position="0 2 -5.05" width="12" depth="0.1" height="4" material="color: #343d52; side: double"></a-box>
+    <a-box position="6.05 2 0"  width="0.1" depth="10" height="4" material="color: #2c3345; side: double"></a-box>
+    <a-box position="-6.05 2 0" width="0.1" depth="10" height="4" material="color: #2c3345; side: double"></a-box>
+    <a-plane position="0 4.02 0" rotation="90 0 0" width="12" height="10" material="color: #232837; side: double"></a-plane>
+
+    <!-- Ceiling light panels -->
+    <a-plane position="-2.5 3.99 -1.5" rotation="90 0 0" width="2.2" height="1.2" material="color: #ffffff; shader: flat; opacity: 0.95"></a-plane>
+    <a-plane position=" 2.5 3.99 -1.5" rotation="90 0 0" width="2.2" height="1.2" material="color: #ffffff; shader: flat; opacity: 0.95"></a-plane>
+    <a-plane position="-2.5 3.99  1.5" rotation="90 0 0" width="2.2" height="1.2" material="color: #ffffff; shader: flat; opacity: 0.95"></a-plane>
+    <a-plane position=" 2.5 3.99  1.5" rotation="90 0 0" width="2.2" height="1.2" material="color: #ffffff; shader: flat; opacity: 0.95"></a-plane>
+
+    <!-- ================= vr-guardian dashboard on the back wall ================= -->
+    <a-entity canvas-label="value: МАЖИЛ КИБЕР; color: #4cc3ff; width: 2.2" position="0 3.76 -4.99"></a-entity>
+    <a-entity canvas-label="value: vr-guardian сургалтын лаб; color: #8fa0c0; width: 1.4" position="0 3.44 -4.99"></a-entity>
+    <a-box class="clickable" data-role="dash" position="0 2.1 -4.9" width="4.6" height="2.5" depth="0.08"
+           material="color: #141a26">
+      <a-plane position="0 0 0.05" width="4.4" height="2.3" material="color: #0c1220"></a-plane>
+      <a-entity id="dash-status" canvas-label="value: vr-guardian: ACTIVE; color: #22e08a; width: 4.0" position="0 0.92 0.06"></a-entity>
+      <a-entity canvas-label="value: Мажил Кибер лаборатор; color: #4cc3ff; width: 3.0" position="0 0.58 0.06"></a-entity>
+      <a-entity id="dash-students" canvas-label="value: Оюутнууд: 16; color: #dbe4ff; width: 2.2; align: left" position="-2 0.18 0.06"></a-entity>
+      <a-entity id="dash-viol" canvas-label="value: Зөрчил: 2; color: #ffb14c; width: 2.2; align: left" position="-2 -0.05 0.06"></a-entity>
+      <a-entity canvas-label="value: Түгжээ: 15 мин; color: #8fa0c0; width: 2.2; align: left" position="-2 -0.28 0.06"></a-entity>
+      <a-entity canvas-label="value: Товшиж → тайлан шинэчлэх; color: #4cc3ff; width: 1.7" position="0 -0.95 0.06"></a-entity>
+      <a-plane position="2.05 1.05 0.06" width="0.1" height="0.1" material="color: #22e08a; shader: flat; transparent: true"
+               animation__pulse="property: material.opacity; from: 1; to: 0.25; dir: alternate; loop: true; dur: 800"></a-plane>
+    </a-box>
+
+    <!-- ================= Student desks: 2 rows x 4 columns ================= -->
+    <a-entity id="desks"></a-entity>
+
+    <!-- ================= Teleport pads ================= -->
+    <a-ring class="clickable" data-role="tp" data-x="-2.5" data-z="2.6" color="#2ee6a8" radius-inner="0.32" radius-outer="0.45"
+            rotation="-90 0 0" position="-2.5 0.02 2.6"></a-ring>
+    <a-ring class="clickable" data-role="tp" data-x="2.5" data-z="2.6" color="#2ee6a8" radius-inner="0.32" radius-outer="0.45"
+            rotation="-90 0 0" position="2.5 0.02 2.6"></a-ring>
+    <a-ring class="clickable" data-role="tp" data-x="0" data-z="3.6" color="#2ee6a8" radius-inner="0.32" radius-outer="0.45"
+            rotation="-90 0 0" position="0 0.02 3.6"></a-ring>
+
+    <!-- Spawn marker -->
+    <a-ring color="#4cc3ff" radius-inner="0.25" radius-outer="0.38" rotation="-90 0 0" position="0 0.02 3.6" opacity="0.5"></a-ring>
+
+    <!-- Entrance sign -->
+    <a-entity canvas-label="value: ← гарц / exit; color: #6c7a99; width: 2.0" position="0 1.6 4.9" rotation="180 0 0"></a-entity>
+  </a-scene>
+
+  <!-- Fail-safe: visible banner if scripts break (never alert()) -->
+  <div id="fatal-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:9999; background:#7a1420; color:#fff; font:14px/1.4 Segoe UI, Arial; padding:10px 14px;">
+    <b>Дэлгэцийн алдаа / script error.</b> The 3D scene hit an error —
+    reload the page. If it repeats, restart the server (VR-TEST.ps1) and reload again.
+  </div>
+  <div id="watchdog" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:9999; background:#123a7a; color:#fff; font:14px/1.4 Segoe UI, Arial; padding:10px 14px;">
+    Still loading… if nothing appears after ~30 s, reload this page or restart the server (VR-TEST.ps1).
+  </div>
+  <script>
+    window.addEventListener('error', function (e) {
+      var b = document.getElementById('fatal-banner');
+      if (b) { b.style.display = 'block'; b.textContent = 'ERR: ' + (e.message || 'unknown') + ' @' + (e.filename || '?').split('/').pop() + ':' + (e.lineno || '?'); }
+    });
+    setTimeout(function () {
+      var s = document.querySelector('a-scene');
+      if (s && !s.hasLoaded) {
+        var w = document.getElementById('watchdog');
+        if (w) { w.style.display = 'block'; }
+      }
+    }, 12000);
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
